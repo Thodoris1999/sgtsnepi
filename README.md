@@ -298,8 +298,7 @@ graphs](https://doi.org/10.21105/joss.01577). *Journal of Open Source Software*
 SG-t-SNE-Π is developed for shared-memory computers with multi-threading,
 running Linux or macOS operating system. The source code must be compiled with a
 C++ compiler which supports Cilk. The current release is tested with
-[OpenCilk](http://opencilk.org) 1.0 (based on LLVM/Tapir `clang++` 10.0.1) and
-Intel Cilk Plus (GNU `g++` 7.4.0 and Intel `icpc` 19.0.4.233).
+[OpenCilk](http://opencilk.org) 2.0.
 
 > WARNING: Intel Cilk Plus is deprecated and not supported in newer versions of
 > GNU `g++` and Intel `icpc`.)

@@ -2,6 +2,7 @@
 sgtsnepi_src = files(['sgtsne.cpp',
                       'sparsematrix.cpp',
                       'utils.cpp',
+                      'cilk_utils.cpp',
                       'gradient_descend.cpp',
                       'qq.cpp',
                       'nuconv.cpp',

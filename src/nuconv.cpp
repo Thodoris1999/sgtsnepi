@@ -9,7 +9,6 @@
 
 #include <iostream>
 #include <cilk/cilk.h>
-#include <cilk/reducer_max.h>
 #include <limits>
 #include <cmath>
 #include <vector>
@@ -18,6 +17,7 @@
 #include "timers.hpp"
 #include "types.hpp"
 #include "utils.hpp"
+#include "cilk_utils.hpp"
 
 #include "gridding.cpp"
 #include "non_periodic_conv.cpp"
@@ -31,10 +31,10 @@ void nuconv( coord *PhiScat, coord *y, coord *VScat,
   
   // ~~~~~~~~~~ normalize coordinates and scale to [0,ng-1] (inside bins)
 
-  cilk::reducer< cilk::op_max<coord> > maxy_reducer;
-  cilk_for (int i = 0; i < n*d; i++)
-    maxy_reducer->calc_max( y[i] );
-  coord maxy = maxy_reducer.get_value();
+  coord cilk_reducer(max_reducer_identity, max_reducer_reduce) maxy = std::numeric_limits<coord>::lowest();
+  cilk_for (int i = 0; i < n*d; i++) {
+    if (y[i] > maxy) maxy = y[i];
+  }
 
   cilk_for (int i = 0; i < n*d; i++) {
     y[i] /= maxy;

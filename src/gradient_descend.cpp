@@ -15,10 +15,10 @@
 #include <cfloat>
 #include <cstdlib>
 #include <cilk/cilk.h>
-#include <cilk/reducer_opadd.h>
 
 #include "timers.hpp"
 #include "qq.hpp"
+#include "cilk_utils.hpp"
 
 template <class dataPoint>
 void compute_dy(dataPoint       * const dy,
@@ -56,10 +56,10 @@ void update_positions(dataPoint * const dY,
   // find mean
   dataPoint meany[no_dims];
   for (int i = 0; i < no_dims; i++){
-    cilk::reducer_opadd<dataPoint> meany_reducer(0.0);
+    dataPoint cilk_reducer(cilk_reducer_zero, cilk_reducer_plus) sumy = 0;
     cilk_for (int j = i; j < N*no_dims; j += no_dims)
-      *meany_reducer += Y[j];
-    meany[i] = meany_reducer.get_value() / N;
+      sumy += Y[j];
+    meany[i] = sumy / N;
   }
 
   // zero-mean

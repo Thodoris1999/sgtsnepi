@@ -10,6 +10,8 @@
 #ifndef _H_EXP_STAT
 #define _H_EXP_STAT
 
+#include <stdint.h>
+
 #define INDEXTYPE uint32_t
 
 
