@@ -48,11 +48,14 @@ if get_option('tune_native')
 endif
 
 # ========== dependencies
+pymodule = import('python')
+python3 = pymodule.find_installation('python3')
 
 # TODO When looking for library dependencies, allow the user to specify a
 # static/shared library object to use instead of whatever system package is
 # found by `dependency()`.  See https://mesonbuild.com/Dependencies.html
 
+inc_dirs          = []
 libs_dep          = []
 libs_dep_dict     = {}
 str_lib_not_found = 'The @0@ library is required.'
@@ -66,7 +69,21 @@ required_lib_deps = [['fftw3'    , 'FFTW3'                 , ['fftw3.h']],
                      ['flann'    , 'FLANN'                 , ['flann/flann.h']],
                      ['lz4'      , 'LZ4'                   , ['lz4.h']]]
 foreach l : required_lib_deps
-  buf_dep = dependency(l[0], required : false)
+  # Optionally get library include/library path from environment variable
+  res = run_command(python3, '-c', 'import os; print(os.environ.get("@0@", ""))'.format(l[1] + '_INCLUDE_PATH', ''))
+  h_env_path = res.stdout()
+  if h_env_path != '' and h_env_path != '\n'
+    inc_dirs += h_env_path
+  endif
+  res = run_command(python3, '-c', 'import os; print(os.environ.get("@0@", ""))'.format(l[1] + '_LIB_PATH', ''))
+  l_env_path = res.stdout()
+
+  if l_env_path != '' and l_env_path != '\n'
+    buf_dep = cc.find_library(l[0], dirs : l_env_path, required : true, has_headers : l[2])
+  else
+    buf_dep = dependency(l[0], required : false)
+  endif
+
   if not buf_dep.found()
     buf_dep = cc.find_library(l[0], required : true, has_headers : l[2])
   endif
@@ -107,6 +124,7 @@ subdir('src')
 # SG-t-SNE-Pi library
 sgtsnepi_lib = library('sgtsnepi', [sgtsnepi_src],
                        dependencies : [libs_dep],
+                       include_directories : inc_dirs,
                        install : true, install_dir : 'lib',
                        soversion : vso)
 
